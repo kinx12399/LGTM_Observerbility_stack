@@ -59,8 +59,8 @@ services:
   create-bucket:
     image: minio/mc
     depends_on:
-      - minio:
-          condition: service_healthy # minio의 헬스체크가 통과되면 실행
+      minio:
+        condition: service_healthy # minio의 헬스체크가 통과되면 실행
     networks:
       - lgtm-net
     entrypoint: >
@@ -83,8 +83,8 @@ services:
       - lgtm-net
     restart: unless-stopped
     depends_on:
-      - minio:
-          condition: service_healthy # Mimir도 MinIO가 완전히 켜진 후 실행되도록 보완
+      minio:
+        condition: service_healthy # Mimir도 MinIO가 완전히 켜진 후 실행되도록 보완
 
   prometheus:
     image: prom/prometheus:latest
