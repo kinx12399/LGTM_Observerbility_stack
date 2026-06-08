@@ -123,6 +123,8 @@ services:
       - "4317"   # OTEL gRPC 수신 포트 (애플리케이션이 트레이스를 쏠 곳)
     volumes:
       - ./config/tempo-config.yaml:/etc/tempo/tempo-config.yaml
+      - tempo-data:/var/tempo/wal
+      
     networks:
       - lgtm-net
     restart: unless-stopped
@@ -140,3 +142,4 @@ volumes:
   minio-data:
   mimir-data:
   prometheus-data:
+  tempo-data:
