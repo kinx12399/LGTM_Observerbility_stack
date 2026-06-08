@@ -60,7 +60,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       sleep 5;
-      /usr/bin/mc config host add myminio http://minio:9000 mimir supersecret;
+      /usr/bin/mc alias set add myminio http://minio:9000 mimir supersecret;
       /usr/bin/mc mb myminio/mimir --ignore-existing;
       exit 0;"
 
