@@ -1,0 +1,34 @@
+server:
+  http_listen_port: 3200
+
+# 트레이스 데이터를 전달받을 수신부(Ingester) 설정
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+
+# 임시 저장소 공간 설정
+ingester:
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+
+# 실제 트레이스 데이터를 MinIO(S3)에 장기 보관하는 설정
+storage:
+  trace:
+    backend: s3
+    s3:
+      bucket: tempo-data
+      endpoint: minio:9000
+      access_key: mimir
+      secret_key: supersecret
+      insecure: true
+
+# 검색 및 캐시를 위한 빈 블록 관리자 설정
+compactor:
+  compaction:
+    block_size: 1h
