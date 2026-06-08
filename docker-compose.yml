@@ -3,7 +3,6 @@ services:
   loki:
     image: grafana/loki:latest
     container_name: loki
-    user: "$UID:$GID"
     expose:
       - "3100"
     volumes:
@@ -29,7 +28,6 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
-    user: "$UID:$GID"
     ports:
       - "3000:3000" # Web UI 외부 접근 허용
     volumes:
