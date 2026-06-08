@@ -41,7 +41,7 @@ services:
     image: minio/minio
     container_name: minio
     # Mimir가 사용할 버킷(mimir)을 기동 시 자동 생성
-    command: ["sh", "-c", "mkdir -p /data/mimir && minio server /data"]
+    command: server /data --console-address ":9001"
     environment:
       - MINIO_ROOT_USER=mimir
       - MINIO_ROOT_PASSWORD=supersecret
@@ -50,6 +50,19 @@ services:
     networks:
       - lgtm-net
     restart: unless-stopped
+    
+  create-bucket:
+    image: minio/mc
+    depends_on:
+      - minio
+    networks:
+      - lgtm-net
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc config host add myminio http://minio:9000 mimir supersecret;
+      /usr/bin/mc mb myminio/mimir --ignore-existing;
+      exit 0;"
 
   mimir:
     image: grafana/mimir:latest
