@@ -5,11 +5,9 @@ server:
 positions:
   filename: /tmp/positions.yaml
 
-# clients.url → Loki endpoint 요구사항 반영
 clients:
   - url: http://loki:3100/loki/api/v1/push
 
-# scrape_configs jobs 1개 이상 요구사항 반영
 scrape_configs:
   - job_name: system
     static_configs:
