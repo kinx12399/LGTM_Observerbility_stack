@@ -117,6 +117,7 @@ services:
   tempo:
     image: grafana/tempo:latest
     container_name: tempo
+    user: "root"
     command: ["-config.file=/etc/tempo/tempo-config.yaml"]
     expose:
       - "3200"   # Tempo HTTP API
