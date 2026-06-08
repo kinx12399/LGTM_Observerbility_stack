@@ -1,0 +1,45 @@
+# docker-compose.yml
+services:
+  loki:
+    image: grafana/loki:latest
+    # 컨테이너 내부 통신만 하므로 ports(호스트 매핑) 생략
+    expose:
+      - "3100"
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:latest
+    volumes:
+      - ./config/promtail-config.yaml:/etc/promtail/config.yml
+      - /var/log:/var/log:ro # VM의 시스템 로그 수집용 읽기 전용 마운트
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000" # Web UI 외부 접근 허용
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+
+# 전용 Docker 브리지 네트워크 정의
+networks:
+  lgtm-net:
+    driver: bridge
+
+# 데이터 유지를 위한 Named 볼륨 정의
+volumes:
+  loki-data:
+  grafana-data:
