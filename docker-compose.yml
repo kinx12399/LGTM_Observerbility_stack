@@ -36,12 +36,71 @@ services:
       - lgtm-net
     restart: unless-stopped
 
-# 전용 Docker 브리지 네트워크 정의
+    # --- 2주차 메트릭 스택 추가 ---
+  minio:
+    image: minio/minio
+    container_name: minio
+    # Mimir가 사용할 버킷(mimir)을 기동 시 자동 생성
+    command: ["sh", "-c", "mkdir -p /data/mimir && minio server /data"]
+    environment:
+      - MINIO_ROOT_USER=mimir
+      - MINIO_ROOT_PASSWORD=supersecret
+    volumes:
+      - minio-data:/data
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+
+  mimir:
+    image: grafana/mimir:latest
+    container_name: mimir
+    command: ["-config.file=/etc/mimir/mimir-config.yaml"]
+    expose:
+      - "9009"
+    volumes:
+      - ./config/mimir-config.yaml:/etc/mimir/mimir-config.yaml
+      - mimir-data:/data
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+    depends_on:
+      - minio
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    expose:
+      - "9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    command:
+      - '--path.rootfs=/host'
+    expose:
+      - "9100"
+    pid: host
+    volumes:
+      - '/:/host:ro,rslave'
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+
 networks:
   lgtm-net:
     driver: bridge
 
-# 데이터 유지를 위한 Named 볼륨 정의
 volumes:
   loki-data:
   grafana-data:
+  minio-data:
+  mimir-data:
+  prometheus-data:
