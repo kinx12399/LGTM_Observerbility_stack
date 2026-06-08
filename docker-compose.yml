@@ -34,6 +34,14 @@ services:
     networks:
       - lgtm-net
     restart: unless-stopped
+    environment:
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=smtp.naver.com:465
+      - GF_SMTP_USER=${NAVER_ID}@naver.com      # <-- .env의 NAVER_ID를 가져옴
+      - GF_SMTP_PASSWORD=${NAVER_APP_PASSWORD} # <-- .env의 패스워드를 가져옴
+      - GF_SMTP_FROM_ADDRESS=${NAVER_ID}@naver.com
+      - GF_SMTP_FROM_NAME=LGTM-Alert-Bot
+      - GF_SMTP_SKIP_VERIFY=true
 
     # --- 2주차 메트릭 스택 추가 ---
   minio:
@@ -78,6 +86,7 @@ services:
       - "9009"
     volumes:
       - ./config/mimir-config.yaml:/etc/mimir/mimir-config.yaml
+      - ./config/mimir-rules.yaml:/etc/mimir/mimir-rules.yaml # add rules
       - mimir-data:/data
     networks:
       - lgtm-net
