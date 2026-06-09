@@ -1,7 +1,6 @@
 server:
   http_listen_port: 3200
 
-# 멀티테넌시 비활성화 (Mimir 때와 동일한 이유로 비활성화합니다)
 multitenancy_enabled: false
 
 # 트레이스 데이터를 받아들이는 게이트웨이 설정
