@@ -112,6 +112,7 @@ services:
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
+    hostname: vm-project1-lgtm
     command:
       - '--path.rootfs=/host'
     expose:
