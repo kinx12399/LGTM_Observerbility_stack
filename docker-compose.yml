@@ -75,7 +75,7 @@ services:
       sleep 5;
       /usr/bin/mc alias set myminio http://minio:9000 mimir supersecret;
       /usr/bin/mc mb myminio/mimir --ignore-existing;
-      /usr/bin/mc mb myminio/tempo-data --ignore-existing; # Tempo용 버킷 생성
+      /usr/bin/mc mb myminio/tempo-data --ignore-existing; # Tempo용 버킷
       exit 0;"
 
   mimir:
