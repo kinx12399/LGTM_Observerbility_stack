@@ -90,7 +90,7 @@ services:
       - "9009"
     volumes:
       - ./config/mimir-config.yaml:/etc/mimir/mimir-config.yaml
-      - ./config/mimir-rules.yaml:/etc/mimir/mimir-rules.yaml # add rules
+      - ./config/mimir-rules.yaml:/etc/mimir/mimir-rules.yaml
       - mimir-data:/data
     networks:
       - lgtm-net

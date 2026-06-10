@@ -189,7 +189,7 @@ docker compose logs --tail=20 prometheus
 - 결과: org id 헤더가 없는 로컬 관찰성 스택에서 인증 오류 없이 정상 연결되었습니다.
 
 ### 3) Grafana 대시보드 프로비저닝 실패
-- 원인: Grafana 웹 UI에서 대시보드를 Export할 때 V2 Resource 포맷으로 추출되었습니다.
+- 원인: Grafana 웹 UI에서 대시보드를 Export할 때 `V2 Resource` 포맷으로 추출되었습니다.
 일반적인 파일 프로비저닝 방식 (`type: file`) 엔진은 `V2 Resource`스키마 구조를 파싱하지 못해 Grafana가 유효하지 않은 파일로 판단하고 로드를 차단하였습니다.
 - 조치: Grafana 대시보드 Export -> Advanced options 진입
   - Model 을 `Classic`으로 전환 
