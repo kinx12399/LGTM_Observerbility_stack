@@ -31,6 +31,9 @@ services:
       - "3000:3000" # Web UI 외부 접근 허용
     volumes:
       - grafana-data:/var/lib/grafana
+      - ./config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./config/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./config/grafana/provisioning/alerting:/etc/grafana/provisioning/alerting
     networks:
       - lgtm-net
     restart: unless-stopped
@@ -42,6 +45,7 @@ services:
       - GF_SMTP_FROM_ADDRESS=${NAVER_ID}@naver.com
       - GF_SMTP_FROM_NAME=LGTM-Alert-Bot
       - GF_SMTP_SKIP_VERIFY=true
+      - GF_PROVISIONING_ENV_VARS_ENABLE=true
 
     # --- 2주차 메트릭 스택 추가 ---
   minio:
@@ -112,7 +116,7 @@ services:
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
-    hostname: vm-project1-lgtm
+    hostname: lgtm-observer-node
     command:
       - '--path.rootfs=/host'
     expose:

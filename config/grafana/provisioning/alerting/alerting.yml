@@ -1,0 +1,22 @@
+# 1. 알림을 받을 연락처 (Contact Points) 정의
+contactPoints:
+  - orgId: 1
+    uid: email-alert-uid
+    name: Email-Alert
+    receivers:
+      - uid: email-receiver-001
+        type: email
+        settings:
+          addresses: '${GF_SMTP_FROM_ADDRESS}'
+          singleEmail: true
+
+# 2. 알림 발송 경로 (Notification Policy Tree) 정의
+policies:
+  - orgId: 1
+    receiver: Email-Alert
+    group_by:
+      - alertname
+      - grafana_folder
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 4h
