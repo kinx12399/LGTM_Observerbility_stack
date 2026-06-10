@@ -10,7 +10,7 @@ contactPoints:
           addresses: '${GF_SMTP_FROM_ADDRESS}'
           singleEmail: true
 
-# 2. 알림 발송 경로 (Notification Policy Tree) 정의
+# 2. 알림 발송 경로 정의
 policies:
   - orgId: 1
     receiver: Email-Alert
