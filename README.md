@@ -188,3 +188,12 @@ docker compose logs --tail=20 prometheus
 - 조치: `create-bucket`, `mimir`, `tempo` 컨테이너에 `depends_on: minio: condition: service_healthy`를 추가했습니다.
 - 결과: MinIO가 헬스체크를 통과한 이후에 종속 서비스가 시작되므로 버킷 생성 및 연결 안정성이 확보되었습니다.
 
+### 3) Grafana 대시보드 프로비저닝 실패
+- 원인: Grafana 웹 UI에서 대시보드를 Export할 때 V2 Resource 포맷으로 추출되었습니다.
+일반적인 파일 프로비저닝 방식 (`type: file`) 엔진은 `V2 Resource`스키마 구조를 파싱하지 못해 Grafana가 유효하지 않은 파일로 판단하고 로드를 차단하였습니다.
+- 조치: Grafana 대시보드 Export -> Advanced options 진입
+  - Model 을 `Classic`으로 전환 
+  - `Classic` 모드 전환 시 파일 프로비저닝이 이해 가능한 Raw JSON형태로 정상 추출됨
+- 조치: 추출된 Classic Raw JSON을 `provisioning/dashboards/json/`폴더에 반영 후 재기동
+- 결과: 수동 클릭/우회 API없이 자동 프로비저닝으로 대시보드 정상 로드가 확인되었습니다.
+
