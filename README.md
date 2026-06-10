@@ -175,18 +175,18 @@ docker compose logs --tail=20 prometheus
 
 ## 6. 트러블슈팅 기록
 
-### 1) `err="server returned HTTP status 401 Unauthorized: no org id\n"`
-- 원인: Tempo/Mimir 기본 설정이 멀티테넌시를 전제로 하여 조직 ID(org id) 확인을 요구했습니다.
-- 조치: `multitenancy_enabled: false`를 `config/tempo-config.yaml`과 `config/mimir-config.yaml`에 추가하여 단일 테넌트 모드로 전환했습니다.
-- 결과: org id 헤더가 없는 로컬 관찰성 스택에서 인증 오류 없이 정상 연결되었습니다.
-
-### 2) MinIO가 준비되지 않은 상태에서 종속 컨테이너가 시작됨
+### 1) MinIO가 준비되지 않은 상태에서 종속 컨테이너가 시작됨
 - 원인: `create-bucket`, `mimir`, `tempo`가 MinIO 컨테이너가 완전히 준비되기 전에 연결을 시도하여 초기화 실패가 발생했습니다.
 - 조치: MinIO 서비스에 다음 healthcheck를 추가했습니다.
   - `curl -f http://localhost:9000/minio/health/live`
   - `interval: 5s`, `timeout: 5s`, `retries: 5`
 - 조치: `create-bucket`, `mimir`, `tempo` 컨테이너에 `depends_on: minio: condition: service_healthy`를 추가했습니다.
 - 결과: MinIO가 헬스체크를 통과한 이후에 종속 서비스가 시작되므로 버킷 생성 및 연결 안정성이 확보되었습니다.
+
+### 2) `err="server returned HTTP status 401 Unauthorized: no org id\n"`
+- 원인: Tempo/Mimir 기본 설정이 멀티테넌시를 전제로 하여 조직 ID(org id) 확인을 요구했습니다.
+- 조치: `multitenancy_enabled: false`를 `config/tempo-config.yaml`과 `config/mimir-config.yaml`에 추가하여 단일 테넌트 모드로 전환했습니다.
+- 결과: org id 헤더가 없는 로컬 관찰성 스택에서 인증 오류 없이 정상 연결되었습니다.
 
 ### 3) Grafana 대시보드 프로비저닝 실패
 - 원인: Grafana 웹 UI에서 대시보드를 Export할 때 V2 Resource 포맷으로 추출되었습니다.
