@@ -107,9 +107,13 @@ rm get-docker.sh
 git clone https://github.com/kinx12399/LGTM_Observerbility_stack.git
 cd LGTM_Observerbility_stack/
 
+# 5. 알람 수신할 이메일 등록
+sudo nano .env
+NAVER_ID=네이버아이디
+NAVER_APP_PASSWORD=발급받은 애플리케이션 비밀번호
 docker compose up -d
 
-# 5. Mimir, Prometheus, MinIO를 포함한 모든 컨테이너가 정상 구동(Up/Healthy) 중인지 로그 확인
+# 6. Mimir, Prometheus, MinIO를 포함한 모든 컨테이너가 정상 구동(Up/Healthy) 중인지 로그 확인
 docker compose logs --tail=20 mimir
 docker compose logs --tail=20 prometheus
 ```
