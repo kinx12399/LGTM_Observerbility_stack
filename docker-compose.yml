@@ -1,6 +1,6 @@
 services:
   loki:
-    image: grafana/loki:latest
+    image: grafana/loki:3.7.2
     container_name: loki
     expose:
       - "3100"
@@ -12,7 +12,7 @@ services:
     restart: unless-stopped
 
   promtail:
-    image: grafana/promtail:latest
+    image: grafana/promtail:3.6.8
     container_name: promtail
     volumes:
       - ./config/promtail-config.yaml:/etc/promtail/config.yml
@@ -25,7 +25,7 @@ services:
       - loki
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:13.0
     container_name: grafana
     ports:
       - "3000:3000" # Web UI 외부 접근 허용
@@ -83,7 +83,7 @@ services:
       exit 0;"
 
   mimir:
-    image: grafana/mimir:latest
+    image: grafana/mimir:3.1.0
     container_name: mimir
     command: ["-config.file=/etc/mimir/mimir-config.yaml"]
     expose:
@@ -100,7 +100,7 @@ services:
         condition: service_healthy # Mimir도 MinIO가 완전히 켜진 후 실행되도록 보완
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v3.12.0
     container_name: prometheus
     command:
       - --config.file=/etc/prometheus/prometheus.yml
@@ -114,7 +114,7 @@ services:
     restart: unless-stopped
 
   node-exporter:
-    image: prom/node-exporter:latest
+    image: prom/node-exporter:v1.11.1
     container_name: node-exporter
     hostname: lgtm-observer-node
     command:
@@ -122,14 +122,14 @@ services:
     expose:
       - "9100"
     pid: host
-    volumes:
-      - '/:/host:ro,rslave'
+    #volumes:
+    #  - '/:/host:ro,rslave'
     networks:
       - lgtm-net
     restart: unless-stopped
 
   tempo:
-    image: grafana/tempo:latest
+    image: grafana/tempo:3.0.0
     container_name: tempo
     user: "root"
     command: ["-config.file=/etc/tempo/tempo-config.yaml"]
