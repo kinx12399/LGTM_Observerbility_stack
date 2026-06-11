@@ -135,7 +135,7 @@ services:
     volumes:
       - ./config:/etc/tempo
       - tempo-data:/var/tempo/wal
-    # 컨테이너 안의 tempo 유저 ID(10001)에게 소유권을 넘겨주고 바로 종료됩니다.
+    # 컨테이너 안의 tempo 유저에게 소유권을 넘겨주고 바로 종료됩니다.
     command: chown -R 10001:10001 /etc/tempo /var/tempo/wal
 
   tempo:
