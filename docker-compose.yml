@@ -128,10 +128,20 @@ services:
       - lgtm-net
     restart: unless-stopped
 
+
+  tempo-init:
+    image: alpine:latest
+    user: "root"
+    volumes:
+      - ./config:/etc/tempo
+      - tempo-data:/var/tempo/wal
+    # 컨테이너 안의 tempo 유저 ID(10001)에게 소유권을 넘겨주고 바로 종료됩니다.
+    command: chown -R 10001:10001 /etc/tempo /var/tempo/wal
+
   tempo:
     image: grafana/tempo:3.0.0
     container_name: tempo
-    user: "root"
+    # user: "root"
     command: ["-config.file=/etc/tempo/tempo-config.yaml"]
     expose:
       - "3200"   # Tempo HTTP API
@@ -139,13 +149,14 @@ services:
     volumes:
       - ./config/tempo-config.yaml:/etc/tempo/tempo-config.yaml
       - tempo-data:/var/tempo/wal
-      
     networks:
       - lgtm-net
     restart: unless-stopped
     depends_on:
       minio:
         condition: service_healthy # Tempo도 MinIO가 완전히 켜진 후 실행되도록 보완
+      tempo-init:
+        condition: service_completed_success # tempo-init이 정상적으로 끝난 후 실행되도록 보완
 
 networks:
   lgtm-net:
