@@ -122,8 +122,8 @@ services:
     expose:
       - "9100"
     pid: host
-    #volumes:
-    #  - '/:/host:ro,rslave'
+    volumes:
+      - '/:/host:ro,rslave'
     networks:
       - lgtm-net
     restart: unless-stopped
