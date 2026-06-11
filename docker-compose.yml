@@ -156,7 +156,7 @@ services:
       minio:
         condition: service_healthy # Tempo도 MinIO가 완전히 켜진 후 실행되도록 보완
       tempo-init:
-        condition: service_completed_success # tempo-init이 정상적으로 끝난 후 실행되도록 보완
+        condition: service_completed_successfully # tempo-init이 정상적으로 끝난 후 실행되도록 보완
 
 networks:
   lgtm-net:
