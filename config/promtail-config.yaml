@@ -17,14 +17,3 @@ scrape_configs:
           job: varlogs
           # docker-compose에서 마운트한 VM의 /var/log 디렉토리 로그를 수집
           __path__: /var/log/*log
-
-    pipeline_stages:
-      # 1. 로그 라인 전체(message)에서 "INFO"라는 단어가 있는지 검사하여 'is_info'라는 임시 변수에 담습니다.
-      - regex:
-          expression: '(?P<is_info>.*INFO.*)'
-
-      # 2. 만약 'is_info' 변수에 값이 존재한다면(즉, INFO라는 단어가 매칭되었다면) 로그를 드롭합니다.
-      - drop:
-          source: is_info
-          expression: '(.*)' # 변수에 어떤 값이라도 들어있으면 드롭하겠다는 의미
-          drop_counter_reason: 'info_sampling'
