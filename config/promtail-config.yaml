@@ -17,3 +17,18 @@ scrape_configs:
           job: varlogs
           # docker-compose에서 마운트한 VM의 /var/log 디렉토리 로그를 수집
           __path__: /var/log/*log
+
+    pipeline_stages:
+      # 1. 수집한 Raw 텍스트가 JSON 형태이므로 파싱하여 'level' 필드를 추출합니다.
+      - json:
+          expressions:
+            level: level
+
+      # 2. 추출한 level 필드를 내부 변수(Stage)로 인식시킵니다.
+      - labels:
+          level:
+
+      # 3. 만약 level이 INFO라면, 해당 로그를 Loki로 보내지 않고 버립니다(drop).
+      - match:
+          selector: '{level="INFO"}'
+          action: drop
