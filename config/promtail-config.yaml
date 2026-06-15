@@ -19,16 +19,22 @@ scrape_configs:
           __path__: /var/log/*log
 
     pipeline_stages:
-      # 1. 수집한 Raw 텍스트가 JSON 형태이므로 파싱하여 'level' 필드를 추출합니다.
+      # 1. 정규표현식을 통해 뒤쪽의 실제 JSON 데이터({로 시작해서 }로 끝나는 부분)만 뽑아 'json_content'라는 임시 변수에 담습니다.
+      - regex:
+          expression: '^(?P<ignore>.*): (?P<json_content>\{.*\})$'
+          source: message
+
+      # 2. 뽑아낸 json_content를 대상으로 JSON 파싱을 수행하여 level을 추출합니다.
       - json:
           expressions:
             level: level
+          source: json_content
 
-      # 2. 추출한 level 필드를 내부 변수(Stage)로 인식시킵니다.
+      # 3. 추출한 level을 내부 변수로 등록합니다.
       - labels:
           level:
 
-      # 3. 만약 level이 INFO라면, 해당 로그를 Loki로 보내지 않고 버립니다(drop).
+      # 4. level이 INFO인 로그를 드롭(Drop)합니다.
       - match:
           selector: '{level="INFO"}'
           action: drop
