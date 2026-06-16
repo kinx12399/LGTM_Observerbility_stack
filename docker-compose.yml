@@ -145,7 +145,7 @@ services:
     command: ["-config.file=/etc/tempo/tempo-config.yaml"]
     expose:
       - "3200"   # Tempo HTTP API
-      #- "4317"   # OTEL gRPC 수신 포트 (애플리케이션 트레이스 수집용, but Alloy가 대신 수집하므로 일단 주석 처리)
+      - "4317"   # OTEL gRPC 수신 포트 (애플리케이션 트레이스 수집용, but Alloy가 대신 수집)
     volumes:
       - ./config/tempo-config.yaml:/etc/tempo/tempo-config.yaml
       - tempo-data:/var/tempo/wal
