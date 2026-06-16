@@ -35,31 +35,33 @@ prometheus.scrape "alloy_self" {
 // 2. LOGS PIPELINE (기존 Promtail 대체)
 ///////////////////////////////////////////////////////////////////////////////
 
-// 로그를 Loki로 전송하는 컴포넌트 (기존 clients)
+// 로그를 Loki로 전송하는 컴포넌트
 loki.write "loki" {
   endpoint {
     url = "http://loki:3100/loki/api/v1/push"
   }
 }
 
-// 로그 수집기 대상 정의
+// 로그 수집기 대상 정의 (오작동하던 중괄호를 지우고 리스트로 명시)
 loki.source.file "varlogs" {
   targets = [
     {
-      // /var/log/ 바로 아래에 있는 확장자 없는 파일(syslog 등)과 모든 파일 대상
-      "__path__" = "/var/log/*", 
+      "__path__" = "/var/log/*.log",
       "job"      = "varlogs",
     },
     {
-      // 하위 디렉토리(예: /var/log/nginx/access.log 등) 내부의 .log 파일들 대상
-      "__path__" = "/var/log/**/*.log",
+      "__path__" = "/var/log/syslog",
+      "job"      = "varlogs",
+    },
+    {
+      "__path__" = "/var/log/auth.log",
       "job"      = "varlogs",
     },
   ]
   forward_to = [loki.process.filter_info.receiver]
 }
 
-// 로그 가공 파이프라인 (기존 pipeline_stages 이식)
+// 로그 가공 파이프라인
 loki.process "filter_info" {
   // 1. 정규식을 통해 "level":"INFO" 패턴 추출 후 log_level에 할당
   stage.regex {
