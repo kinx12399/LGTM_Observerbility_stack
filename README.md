@@ -2,6 +2,47 @@
 
 LGTM Observability 는 Grafana 기반 모니터링, 로그, 트레이스 통합 관찰성 환경을 Docker Compose로 구성한 프로젝트입니다.
 
+## 폴더 구조
+
+```
+LGTM_Observerbility_stack/
+├─ .env.example
+├─ .git/
+├─ docker-compose.yml           # 산출물 2
+├─ README.md                    # 산출물 6
+├─ test-logs.sh
+├─ config/                      # 산출물 3
+│  ├─ loki-config.yaml
+│  ├─ mimir-config.yaml
+│  ├─ prometheus.yml
+│  ├─ promtail-config.yaml
+│  ├─ tempo-config.yaml
+│  └─ grafana/
+│     └─ provisioning/
+│        ├─ alerting/
+│        │  ├─ alerting.yml
+│        │  └─ alerts.yml
+│        ├─ dashboards/
+│        │  ├─ dashboard.yaml
+│        │  └─ json/
+│        │     ├─ dashboard-log.json
+│        │     └─ dashboard-metric.json
+│        └─ datasources/
+│           └─ datasources.yaml
+└─ output/                      # 산출물 4, 5
+   ├─ alerting.yml
+   ├─ alerts.yml
+   ├─ dashboard-log.json
+   ├─ dashboard-metric.json
+   └─ screenshot/
+     ├─ dockercomposeps.png
+     ├─ grafana.png
+     ├─ lokidatasource.png
+     ├─ mailalert1.png
+     ├─ mailalert2.png
+     └─ prometheus(mimir)datasource.png   
+```
+
 `http://1.201.177.179:3000/`
 
 ## 1. 아키텍처
