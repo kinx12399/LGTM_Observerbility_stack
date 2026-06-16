@@ -1,0 +1,178 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: 1m-interval-group
+      folder: Monitoring
+      interval: 1m
+      rules:
+        - uid: dfoi3ur8zwgsgc
+          title: '[Warning] High CPU Usage(5분평균)'
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: lgtm-mimir
+              model:
+                datasource:
+                    type: prometheus
+                    uid: lgtm-mimir
+                editorMode: code
+                expr: (1 - sum(rate(node_cpu_seconds_total{mode="idle"}[5m])) / sum(rate(node_cpu_seconds_total[5m]))) * 100
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 80
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            description: CPU사용률 80% 이상이 5분이상 지속되고 있습니다.
+            summary: CPU사용률 80% 이상이 5분이상 지속되고 있습니다.
+          isPaused: false
+          notification_settings:
+            receiver: Email-Alert
+        - uid: bfokeizo5il1ca
+          title: '[Warning] High Disk Usage'
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: lgtm-mimir
+              model:
+                datasource:
+                    type: prometheus
+                    uid: lgtm-mimir
+                editorMode: code
+                expr: (1 - node_filesystem_free_bytes{fstype=~"ext4|xfs|apfs"} / node_filesystem_size_bytes{fstype=~"ext4|xfs|apfs"}) * 100
+                hide: false
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 85
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 5m
+          annotations:
+            description: 디스크 사용율이 85%이상이 되면 바로 울립니다.
+            summary: 디스크 사용율이 85% 이상입니다.
+          labels: {}
+          isPaused: false
+          notification_settings:
+            receiver: Email-Alert
+        - uid: efokezyex9lvka
+          title: '[Warning] High CPU Usage(1분평균)'
+          condition: C
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: lgtm-mimir
+              model:
+                datasource:
+                    type: prometheus
+                    uid: lgtm-mimir
+                editorMode: code
+                expr: "(1 - sum(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) / sum(rate(node_cpu_seconds_total[1m]))) * 100\r\n"
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: C
+              queryType: expression
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 80
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 1m
+          annotations:
+            description: CPU사용률 80% 이상(1분평균)
+            summary: CPU사용률 80% 이상이 5분이상 지속되고 있습니다.
+          labels: {}
+          isPaused: false
+          notification_settings:
+            receiver: Email-Alert

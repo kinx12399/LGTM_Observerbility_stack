@@ -1,0 +1,171 @@
+services:
+  loki:
+    image: grafana/loki:3.7.2
+    container_name: loki
+    expose:
+      - "3100"
+    volumes:
+      - ./config/loki-config.yaml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:3.6.8
+    container_name: promtail
+    volumes:
+      - ./config/promtail-config.yaml:/etc/promtail/config.yml
+      - /var/log:/var/log:ro # VM의 시스템 로그 수집용 읽기 전용 마운트
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:13.0
+    container_name: grafana
+    ports:
+      - "3000:3000" # Web UI 외부 접근 허용
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./config/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./config/grafana/provisioning/alerting:/etc/grafana/provisioning/alerting
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+    environment:
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=smtp.naver.com:465
+      - GF_SMTP_USER=${NAVER_ID}@naver.com      # <-- .env의 NAVER_ID를 가져옴
+      - GF_SMTP_PASSWORD=${NAVER_APP_PASSWORD} # <-- .env의 패스워드를 가져옴
+      - GF_SMTP_FROM_ADDRESS=${NAVER_ID}@naver.com
+      - GF_SMTP_FROM_NAME=LGTM-Alert-Bot
+      - GF_SMTP_SKIP_VERIFY=true
+      - GF_PROVISIONING_ENV_VARS_ENABLE=true
+
+    # --- 2주차 메트릭 스택 추가 ---
+  minio:
+    image: minio/minio
+    container_name: minio
+    # Mimir가 사용할 버킷(mimir)을 기동 시 자동 생성
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=mimir
+      - MINIO_ROOT_PASSWORD=supersecret
+    volumes:
+      - minio-data:/data
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    
+  create-bucket:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy # minio의 헬스체크가 통과되면 실행
+    networks:
+      - lgtm-net
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 mimir supersecret;
+      /usr/bin/mc mb myminio/mimir --ignore-existing;
+      /usr/bin/mc mb myminio/tempo-data --ignore-existing; # Tempo용 버킷
+      exit 0;"
+
+  mimir:
+    image: grafana/mimir:3.1.0
+    container_name: mimir
+    command: ["-config.file=/etc/mimir/mimir-config.yaml"]
+    expose:
+      - "9009"
+    volumes:
+      - ./config/mimir-config.yaml:/etc/mimir/mimir-config.yaml
+      - ./config/mimir-rules.yaml:/etc/mimir/mimir-rules.yaml
+      - mimir-data:/data
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+    depends_on:
+      minio:
+        condition: service_healthy # Mimir도 MinIO가 완전히 켜진 후 실행되도록 보완
+
+  prometheus:
+    image: prom/prometheus:v3.12.0
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    expose:
+      - "9090"
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:v1.11.1
+    container_name: node-exporter
+    hostname: lgtm-observer-node
+    command:
+      - '--path.rootfs=/host'
+    expose:
+      - "9100"
+    pid: host
+    volumes:
+      - '/:/host:ro,rslave'
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+
+
+  tempo-init:
+    image: alpine:latest
+    user: "root"
+    volumes:
+      - ./config:/etc/tempo
+      - tempo-data:/var/tempo/wal
+    # 컨테이너 안의 tempo 유저에게 소유권을 넘겨주고 바로 종료됩니다.
+    command: chown -R 10001:10001 /etc/tempo /var/tempo/wal
+
+  tempo:
+    image: grafana/tempo:3.0.0
+    container_name: tempo
+    # user: "root"
+    command: ["-config.file=/etc/tempo/tempo-config.yaml"]
+    expose:
+      - "3200"   # Tempo HTTP API
+      - "4317"   # OTEL gRPC 수신 포트 (애플리케이션이 트레이스를 쏠 곳)
+    volumes:
+      - ./config/tempo-config.yaml:/etc/tempo/tempo-config.yaml
+      - tempo-data:/var/tempo/wal
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+    depends_on:
+      minio:
+        condition: service_healthy # Tempo도 MinIO가 완전히 켜진 후 실행되도록 보완
+      tempo-init:
+        condition: service_completed_successfully # tempo-init이 정상적으로 끝난 후 실행되도록 보완
+
+networks:
+  lgtm-net:
+    driver: bridge
+
+volumes:
+  loki-data:
+  grafana-data:
+  minio-data:
+  mimir-data:
+  prometheus-data:
+  tempo-data:

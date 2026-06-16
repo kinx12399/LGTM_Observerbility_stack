@@ -1,0 +1,30 @@
+# monolithic 모드 실행
+target: all
+multitenancy_enabled: false
+
+server:
+  http_listen_port: 9009
+
+# storage(s3-minio 연동) 설정
+blocks_storage:
+  backend: s3
+  s3:
+    endpoint: minio:9000
+    access_key_id: mimir
+    secret_access_key: supersecret
+    insecure: true
+    bucket_name: mimir
+  tsdb:
+    dir: /data/tsdb
+
+# ingester 설정
+ingester:
+  ring:
+    replication_factor: 1
+
+# compactor 설정
+compactor:
+  data_dir: /data/compactor
+  sharding_ring:
+    kvstore:
+      store: memberlist

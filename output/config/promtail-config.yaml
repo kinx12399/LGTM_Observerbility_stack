@@ -1,0 +1,30 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: varlogs
+          # docker-compose에서 마운트한 VM의 /var/log 디렉토리 로그를 수집
+          __path__: /var/log/*log
+
+    pipeline_stages:
+      # 1. 로그 전체에서 JSON 부분의 "level":"INFO"를 찾아 추출합니다.
+      - regex:
+          expression: '"level":\s*"(?P<log_level>[^"]+)"'
+
+      # 2. 추출한 log_level 변수의 값이 정확히 INFO인 경우에만 드롭합니다.
+      - drop:
+          source: log_level
+          value: "INFO"
+          drop_counter_reason: "info_sampling"

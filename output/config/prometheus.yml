@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s
+
+# 메트릭을 Mimir로 전송 (Remote Write)
+remote_write:
+  - url: http://mimir:9009/api/v1/push
+
+scrape_configs:
+  # Prometheus 자기 자신 모니터링
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Node Exporter 모니터링
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
