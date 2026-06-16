@@ -2,7 +2,7 @@
 
 LGTM Observability 는 Grafana 기반 모니터링, 로그, 트레이스 통합 관찰성 환경을 Docker Compose로 구성한 프로젝트입니다.
 
-필수산출물은 output 폴더에 정리해놨습니다.
+필수산출물은 output 폴더에 정리해 놓았습니다.
 
 `http://1.201.177.179:3000/`
 
