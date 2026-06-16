@@ -17,7 +17,7 @@ prometheus.remote_write "mimir" {
 // Node Exporter 메트릭 수집
 prometheus.scrape "node_exporter" {
   targets = [
-    {"__address__" = "node-exporter:9100"}
+    {"__address__" = "node-exporter:9100"},
   ]
   forward_to = [prometheus.remote_write.mimir.receiver]
 }
@@ -25,7 +25,7 @@ prometheus.scrape "node_exporter" {
 // Alloy 자기 자신 메트릭 수집 (기존 prometheus 자가 모니터링 대체)
 prometheus.scrape "alloy_self" {
   targets = [
-    {"__address__" = "localhost:12345"}
+    {"__address__" = "localhost:12345"},
   ]
   forward_to = [prometheus.remote_write.mimir.receiver]
 }
@@ -47,8 +47,8 @@ loki.source.file "varlogs" {
   targets = [
     {
       "__path__" = "/var/log/*log",
-      "job"      = "varlogs"
-    }
+      "job"      = "varlogs",
+    },
   ]
   forward_to = [loki.process.filter_info.receiver]
 }
