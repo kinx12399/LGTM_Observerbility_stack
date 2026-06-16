@@ -11,18 +11,18 @@ services:
       - lgtm-net
     restart: unless-stopped
 
-  promtail:
-    image: grafana/promtail:3.6.8
-    container_name: promtail
-    volumes:
-      - ./config/promtail-config.yaml:/etc/promtail/config.yml
-      - /var/log:/var/log:ro # VM의 시스템 로그 수집용 읽기 전용 마운트
-    command: -config.file=/etc/promtail/config.yml
-    networks:
-      - lgtm-net
-    restart: unless-stopped
-    depends_on:
-      - loki
+  # promtail:
+  #   image: grafana/promtail:3.6.8
+  #   container_name: promtail
+  #   volumes:
+  #     - ./config/promtail-config.yaml:/etc/promtail/config.yml
+  #     - /var/log:/var/log:ro # VM의 시스템 로그 수집용 읽기 전용 마운트
+  #   command: -config.file=/etc/promtail/config.yml
+  #   networks:
+  #     - lgtm-net
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - loki
 
   grafana:
     image: grafana/grafana:13.0
@@ -99,19 +99,19 @@ services:
       minio:
         condition: service_healthy # Mimir도 MinIO가 완전히 켜진 후 실행되도록 보완
 
-  prometheus:
-    image: prom/prometheus:v3.12.0
-    container_name: prometheus
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-    expose:
-      - "9090"
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus-data:/prometheus
-    networks:
-      - lgtm-net
-    restart: unless-stopped
+  # prometheus:
+  #   image: prom/prometheus:v3.12.0
+  #   container_name: prometheus
+  #   command:
+  #     - --config.file=/etc/prometheus/prometheus.yml
+  #   expose:
+  #     - "9090"
+  #   volumes:
+  #     - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - prometheus-data:/prometheus
+  #   networks:
+  #     - lgtm-net
+  #   restart: unless-stopped
 
   node-exporter:
     image: prom/node-exporter:v1.11.1
@@ -145,7 +145,7 @@ services:
     command: ["-config.file=/etc/tempo/tempo-config.yaml"]
     expose:
       - "3200"   # Tempo HTTP API
-      - "4317"   # OTEL gRPC 수신 포트 (애플리케이션이 트레이스를 쏠 곳)
+      # - "4317"   # OTEL gRPC 수신 포트 (애플리케이션 트레이스 수집용, but Alloy가 대신 수집하므로 일단 주석 처리)
     volumes:
       - ./config/tempo-config.yaml:/etc/tempo/tempo-config.yaml
       - tempo-data:/var/tempo/wal
@@ -158,6 +158,27 @@ services:
       tempo-init:
         condition: service_completed_successfully # tempo-init이 정상적으로 끝난 후 실행되도록 보완
 
+  #[신규] Alloy: 통합 관측 솔루션
+  alloy:
+    image: grafana/alloy:v1.17.0
+    container_name: alloy
+    ports:
+      - "12345:12345" # Alloy 웹 UI 포트 (디버깅용)
+      - "4317:4317"   # 애플리케이션 트레이스를 받을 OTLP gRPC 포트 개방
+      - "4318:4318"   # OTLP HTTP 포트 개방 (필요시)
+    volumes:
+      - ./config/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/log:/var/log:ro  # VM 로그 수집용 마운트
+      - ./alloy-data:/var/lib/alloy
+    command: [ "run", "--server.http.listen-addr=0.0.0.0:12345", "/etc/alloy/config.alloy" ]
+    networks:
+      - lgtm-net
+    restart: unless-stopped
+    depends_on:
+      - mimir
+      - loki
+      - tempo
+
 networks:
   lgtm-net:
     driver: bridge
@@ -167,5 +188,5 @@ volumes:
   grafana-data:
   minio-data:
   mimir-data:
-  prometheus-data:
+  # prometheus-data:
   tempo-data:
