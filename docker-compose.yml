@@ -188,8 +188,8 @@ services:
       - mimir
       - loki
       - tempo
-    alloy-init:
-      condition: service_completed_successfully # alloy-init이 정상 종료된 후 Alloy 실행
+      - alloy-init
+
 
 networks:
   lgtm-net:
