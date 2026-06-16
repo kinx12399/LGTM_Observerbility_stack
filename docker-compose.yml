@@ -162,7 +162,11 @@ services:
   alloy:
     image: grafana/alloy:v1.17.0
     container_name: alloy
-    user: "root"
+    # user: "root"
+    user: "10001:0"
+    group_add:
+      - "4"     # 호스트 Ubuntu의 adm 그룹 GID (로그 읽기 권한 그룹)
+      - "0"     # root 그룹 GID (필요시)
     ports:
       - "12345:12345" # Alloy 웹 UI 포트 (디버깅용)
       - "4317:4317"   # 애플리케이션 트레이스를 받을 OTLP gRPC 포트 개방
