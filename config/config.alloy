@@ -54,7 +54,7 @@ loki.source.file "varlogs" {
       // 하위 디렉토리(예: /var/log/nginx/access.log 등) 내부의 .log 파일들 대상
       "__path__" = "/var/log/**/*.log",
       "job"      = "varlogs",
-    }
+    },
   ]
   forward_to = [loki.process.filter_info.receiver]
 }
