@@ -46,7 +46,7 @@ loki.write "loki" {
 loki.source.file "varlogs" {
   targets = [
     {
-      "__path__" = "/var/log/*log",
+      "__path__" = "/var/log/**/*.log",
       "job"      = "varlogs",
     },
   ]
