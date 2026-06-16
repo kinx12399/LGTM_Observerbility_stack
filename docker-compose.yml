@@ -162,6 +162,7 @@ services:
   alloy:
     image: grafana/alloy:v1.17.0
     container_name: alloy
+    user: "root"
     ports:
       - "12345:12345" # Alloy 웹 UI 포트 (디버깅용)
       - "4317:4317"   # 애플리케이션 트레이스를 받을 OTLP gRPC 포트 개방
