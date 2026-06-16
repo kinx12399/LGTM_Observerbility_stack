@@ -159,21 +159,26 @@ services:
         condition: service_completed_successfully # tempo-init이 정상적으로 끝난 후 실행되도록 보완
 
   #[신규] Alloy: 통합 관측 솔루션
+  alloy-init:
+    image: alpine:latest
+    user: "root"
+    volumes:
+      - ./alloy-data:/var/lib/alloy
+    # 컨테이너 안의 alloy 유저(10001)에게 소유권을 넘겨주고 바로 종료됩니다.
+    command: chown -R 10001:10001 /var/lib/alloy
   alloy:
     image: grafana/alloy:v1.17.0
     container_name: alloy
-    # user: "root"
-    user: "10001:0"
-    group_add:
-      - "4"     # 호스트 Ubuntu의 adm 그룹 GID (로그 읽기 권한 그룹)
-      - "0"     # root 그룹 GID (필요시)
+    # /var/log 수집 및 init 컨테이너와의 권한 싱크를 위해 root로 기동하거나 
+    # 혹은 호스트 권한을 위해 그대로 유지합니다.
+    user: "root" 
     ports:
       - "12345:12345" # Alloy 웹 UI 포트 (디버깅용)
       - "4317:4317"   # 애플리케이션 트레이스를 받을 OTLP gRPC 포트 개방
       - "4318:4318"   # OTLP HTTP 포트 개방 (필요시)
     volumes:
       - ./config/config.alloy:/etc/alloy/config.alloy:ro
-      - /var/log:/var/log:ro  # VM 로그 수집용 마운트
+      - /var/log:/var/log:ro # 호스트의 시스템 로그 수집용 읽기 전용 마운트
       - ./alloy-data:/var/lib/alloy
     command: [ "run", "--server.http.listen-addr=0.0.0.0:12345", "/etc/alloy/config.alloy" ]
     networks:
@@ -183,6 +188,8 @@ services:
       - mimir
       - loki
       - tempo
+    alloy-init:
+      condition: service_completed_successfully # alloy-init이 정상 종료된 후 Alloy 실행
 
 networks:
   lgtm-net:
