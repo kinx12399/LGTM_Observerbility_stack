@@ -3,11 +3,12 @@ contactPoints:
   - orgId: 1
     uid: email-alert-uid
     name: Email-Alert
-    # receivers 형태 대신 공식 규격인 settings 직접 매핑 구조로 변경합니다.
-    settings:
-      addresses: '${GF_SMTP_FROM_ADDRESS}'
-      singleEmail: true
-    type: email
+    receivers:
+      - uid: email-receiver-001
+        type: email
+        settings:
+          addresses: '${GF_SMTP_FROM_ADDRESS}'
+          singleEmail: true
 
 # 2. 알림 발송 경로 정의
 policies:
