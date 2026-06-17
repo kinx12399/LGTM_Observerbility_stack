@@ -108,7 +108,7 @@ groups:
                 maxDataPoints: 43200
                 refId: C
                 type: threshold
-          noDataState: KeepLastState  # 데이터가 순간 끊겨도 알람이 풀리지 않도록 안전장치 적용
+          noDataState: NoData
           execErrState: Error
           for: 0m  # 대기 시간 없이 85%를 넘는 메트릭이 수집되는 즉시 알람이 울립니다.
           annotations:
@@ -224,7 +224,7 @@ groups:
                 maxDataPoints: 43200
                 refId: C
                 type: threshold
-          noDataState: KeepLastState  # 과부하로 메트릭이 잠시 끊겨도 알람이 풀리지 않도록 변경했습니다.
+          noDataState: NoData
           execErrState: Error
           for: 5m  # 이 단순 사용량 수치가 '5분 동안 한 번도 떨어지지 않고 지속'되어야 알람이 울립니다.
           annotations:
