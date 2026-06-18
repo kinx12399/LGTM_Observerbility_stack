@@ -25,11 +25,3 @@ storage:
     wal:
       path: /var/tempo/wal
 
-metrics_generator:
-  registry:
-    external_labels:
-      source: "tempo"
-  storage:
-    path: /var/tempo/generator/wal
-    remote_write:
-      - url: http://mimir:9009/api/v1/push
