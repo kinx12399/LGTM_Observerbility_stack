@@ -4,6 +4,13 @@ global:
 # 메트릭을 Mimir로 전송 (Remote Write)
 remote_write:
   - url: http://mimir:9009/api/v1/push
+    write_relabel_configs:
+      - source_labels: [__name__]
+        regex: '(.*)'
+        target_label: __name__
+    metadata_config:
+      send: true
+      send_interval: 1m
 
 scrape_configs:
   # Prometheus 자기 자신 모니터링

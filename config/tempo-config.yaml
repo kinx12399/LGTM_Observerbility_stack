@@ -24,3 +24,19 @@ storage:
     # 최신 규격은 블록 관리(ingester/compactor) 설정을 내부 s3 아래에 함께 위임
     wal:
       path: /var/tempo/wal
+
+metrics_generator_enabled: true
+metrics_generator:
+  registry:
+    external_labels:
+      source: "tempo"
+  storage:
+    path: /var/tempo/generator/wal
+    remote_write:
+      - url: http://mimir:9009/api/v1/push
+
+compactor:
+  compaction:
+    block_retention: 168h # 7일
+    compaction_window: 1h
+    compaction_window_alignment: 0s
