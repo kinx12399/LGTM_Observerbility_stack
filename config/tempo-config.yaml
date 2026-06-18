@@ -26,6 +26,7 @@ storage:
       path: /var/tempo/wal
 
 metrics_generator_enabled: true
+
 metrics_generator:
   registry:
     external_labels:
@@ -35,8 +36,3 @@ metrics_generator:
     remote_write:
       - url: http://mimir:9009/api/v1/push
 
-compactor:
-  compaction:
-    block_retention: 168h # 7일
-    compaction_window: 1h
-    compaction_window_alignment: 0s
