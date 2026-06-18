@@ -26,7 +26,6 @@ storage:
       path: /var/tempo/wal
 
 metrics_generator:
-  enabled: true 
   registry:
     external_labels:
       source: "tempo"
