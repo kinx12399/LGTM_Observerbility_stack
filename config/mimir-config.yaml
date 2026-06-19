@@ -22,10 +22,11 @@ ingester:
   ring:
     replication_factor: 1
 
-# compactor 설정
+limits:
+  compactor_blocks_retention_period: 30d # 메트릭 30일 보관
+
 compactor:
   data_dir: /data/compactor
   sharding_ring:
     kvstore:
       store: memberlist
-
