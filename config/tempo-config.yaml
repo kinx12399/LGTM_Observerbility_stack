@@ -21,7 +21,7 @@ storage:
       access_key: mimir
       secret_key: supersecret
       insecure: true
-    # 최신 규격은 블록 관리(ingester/compactor) 설정을 내부 s3 아래에 함께 위임
+    
     wal:
       path: /var/tempo/wal
 

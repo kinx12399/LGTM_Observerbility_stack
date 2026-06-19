@@ -35,7 +35,7 @@ scrape_configs:
       - regex:
           expression: '"level":\s*"(?P<log_level>[^"]+)"'
 
-      # 4. [조건부 드롭] 레벨이 INFO이면서, 동시에 보안 로그가 '아닌(generic)' 경우에만 드롭합니다.
+      # 4. [조건부 드롭] 레벨이 INFO이면서, 동시에 보안 로그가 '아닌(generic)' 경우에만 로그를 드롭합니다.
       - drop:
           expression: '(?s)^.*"log_level":"INFO".*"log_type":"generic".*$'
           drop_counter_reason: "non_security_info_sampling"
