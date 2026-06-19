@@ -25,7 +25,6 @@ scrape_configs:
           expression: '(?P<is_security>(login|logout|auth|password|unauthorized))'
       
       # 2. 로그 원문에서 로그 레벨 추출 (추출 변수: log_level)
-      # ※ 만약 로그가 JSON 형식이 아니라면 이 정규식도 로그 포맷에 맞게 수정해야 합니다.
       - regex:
           expression: '"level":\s*"(?P<log_level>[^"]+)"'
 
@@ -37,6 +36,7 @@ scrape_configs:
       # 4. 라벨 지정: 위에서 만든 log_type 변수를 실제 Loki 라벨로 등록
       - labels:
           log_type:
+          log_level:
 
       # 5. [조건부 드롭] 레벨이 INFO이면서, 보안 키워드가 없는(generic) 경우 드롭
       - match:
@@ -46,4 +46,4 @@ scrape_configs:
           drop_counter_reason: "non_security_info_sampling"
           # log_level이 INFO이고 log_type이 generic인 경우 매칭
           expression: '(?P<log_level>INFO)'
-          selector: '{job="varlogs", log_type="generic"}'
+          selector: '{job="varlogs", log_type="generic", log_level="INFO"}'
