@@ -24,7 +24,8 @@ storage:
     wal:
       path: /var/tempo/wal
 
-    retention:
-      block_retention: 24h
-      compacted_block_retention: 1h
-
+backend_worker:
+  compaction:
+    block_retention: 72h
+    compacted_block_retention: 1h
+    compaction_window: 1h
