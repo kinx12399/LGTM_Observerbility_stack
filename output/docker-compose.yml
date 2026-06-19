@@ -6,6 +6,7 @@ services:
       - "3100"
     volumes:
       - ./config/loki-config.yaml:/etc/loki/local-config.yaml
+      - ./config/loki-retention.yaml:/etc/loki/loki-retention.yaml
       - loki-data:/loki
     networks:
       - lgtm-net

@@ -1,0 +1,5 @@
+# ./config/loki-retention.yaml
+stream_rules:
+  # Promtail에서 필터링되어 log_type="security" 라벨이 붙은 스트림은 1년(8760시간) 보관
+  - selector: '{log_type="security"}'
+    period: 8760h

@@ -15,16 +15,30 @@ scrape_configs:
           - localhost
         labels:
           job: varlogs
+          log_type: generic
           # docker-compose에서 마운트한 VM의 /var/log 디렉토리 로그를 수집
           __path__: /var/log/*log
 
     pipeline_stages:
-      # 1. 로그 전체에서 JSON 부분의 "level":"INFO"를 찾아 추출합니다.
+      # 1. 로그 내용 중 login, auth, password, 등 보안 키워드 탐색
+      - regex:
+          expression: '(?P<is_security>(login|logout|auth|password|unauthorized))'
+      
+      # 2. 위 키워드가 매칭되어 'is_security' 변수가 생성되었다면, log_type 라벨을 'security'로 변경
+      - labels:
+          log_type:  # 특정 조건일 때 기존 'generic' 라벨을 'security'로 덮어씁니다.
+      - template:
+          source: log_type
+          template: '{{ if .is_security }}security{{ else }}generic{{ end }}'
+
+      # 3. 그 다음 로그 레벨(INFO, WARN, ERROR 등)을 추출합니다.
       - regex:
           expression: '"level":\s*"(?P<log_level>[^"]+)"'
 
-      # 2. 추출한 log_level 변수의 값이 정확히 INFO인 경우에만 드롭합니다.
+      # 4. [조건부 드롭] 레벨이 INFO이면서, 동시에 보안 로그가 '아닌(generic)' 경우에만 드롭합니다.
       - drop:
           source: log_level
           value: "INFO"
-          drop_counter_reason: "info_sampling"
+          # expression을 추가하여 log_type이 generic일 때만 INFO를 드롭하도록 제한합니다.
+          expression: '.*"log_type":"generic".*' 
+          drop_counter_reason: "non_security_info_sampling"
