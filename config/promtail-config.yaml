@@ -46,4 +46,4 @@ scrape_configs:
           drop_counter_reason: "non_security_info_sampling"
           # log_level이 INFO이고 log_type이 generic인 경우 매칭
           expression: '(?P<log_level>INFO)'
-          selector: '{job="varlogs"} | log_type="generic"'
+          selector: '{job="varlogs" | log_type="generic"}'
