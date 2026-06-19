@@ -25,6 +25,4 @@ storage:
     wal:
       path: /var/tempo/wal
 
-    compactor:
-      compaction:
-        block_retention: 72h # 3일(72시간) 지나면 트레이스 자동 삭제
+    block_retention: 72h # 3일(72시간) 지나면 트레이스 자동 삭제
