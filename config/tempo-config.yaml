@@ -11,7 +11,14 @@ distributor:
         grpc:
           endpoint: 0.0.0.0:4317
 
+compactor:
+  compaction:
+    block_retention: 24h
+    compacted_block_retention: 1h
+
 # 모든 상태 저장 컴포넌트들의 데이터를 지정하는 공통 스토리지 블록
+
+
 storage:
   trace:
     backend: s3
@@ -25,4 +32,3 @@ storage:
     wal:
       path: /var/tempo/wal
 
-    block_retention: 72h # 3일(72시간) 지나면 트레이스 자동 삭제
