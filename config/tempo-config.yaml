@@ -11,13 +11,12 @@ distributor:
         grpc:
           endpoint: 0.0.0.0:4317
 
-compactor:
+compactor_config:
   compaction:
     block_retention: 24h
     compacted_block_retention: 1h
 
 # 모든 상태 저장 컴포넌트들의 데이터를 지정하는 공통 스토리지 블록
-
 
 storage:
   trace:
