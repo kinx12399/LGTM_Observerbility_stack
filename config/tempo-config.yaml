@@ -11,18 +11,6 @@ distributor:
         grpc:
           endpoint: 0.0.0.0:4317
 
-# 1. 백엔드 스케줄러 설정 (작업 생성 및 관리 담당)
-backend_scheduler:
-  # 기본 스케줄러 컴팩션 설정 구조 입력
-  compaction:
-    block_retention: 24h
-    compacted_block_retention: 1h
-
-# 2. 백엔드 워커 설정 (스케줄러에게 일감을 받아 실제 Retention/Compaction 수행)
-backend_worker:
-  # 단일 컨테이너 모드이므로 본인의 gRPC 포트(기본 9095)를 바라보게 설정하거나 빈값으로 둡니다.
-  backend_scheduler_addr: localhost:9095
-
 storage:
   trace:
     backend: s3
@@ -35,4 +23,8 @@ storage:
     
     wal:
       path: /var/tempo/wal
+
+    retention:
+      block_retention: 24h
+      compacted_block_retention: 1h
 
