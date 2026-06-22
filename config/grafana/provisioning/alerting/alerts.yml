@@ -237,7 +237,7 @@ groups:
         notification_settings:
           receiver: Email-Alert
 
-      - uid: efokezyex9lvka
+      - uid: efokezyex9lvkb
         title: '[Warning] High CPU Usage(1분평균)'
         condition: C
         data:
