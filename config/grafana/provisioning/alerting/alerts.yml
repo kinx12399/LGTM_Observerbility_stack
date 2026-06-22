@@ -248,7 +248,7 @@ groups:
                     type: prometheus
                     uid: lgtm-mimir
                 editorMode: code
-                expr: "(1 - sum(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) / sum(rate(node_cpu_seconds_total[1m]))) * 100\r\n"
+                expr: (1 - sum(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) / sum(rate(node_cpu_seconds_total[1m]))) * 100
                 instant: true
                 intervalMs: 1000
                 legendFormat: __auto
