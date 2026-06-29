@@ -11,7 +11,6 @@ distributor:
         grpc:
           endpoint: 0.0.0.0:4317
 
-# 모든 상태 저장 컴포넌트들의 데이터를 지정하는 공통 스토리지 블록
 storage:
   trace:
     backend: s3
@@ -21,6 +20,12 @@ storage:
       access_key: mimir
       secret_key: supersecret
       insecure: true
-    # 최신 규격은 블록 관리(ingester/compactor) 설정을 내부 s3 아래에 함께 위임
+    
     wal:
       path: /var/tempo/wal
+
+backend_worker:
+  compaction:
+    block_retention: 72h
+    compacted_block_retention: 1h
+    compaction_window: 1h

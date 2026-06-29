@@ -39,11 +39,18 @@ ingester:
 
 limits_config:
   reject_old_samples: true
-  reject_old_samples_max_age: 168h
-  retention_period: 168h # 7일간 로그 보관
+  reject_old_samples_max_age: 8760h
+  retention_period: 720h # 기본 로그 보관 기간 (30일)
 
-# retention_period를 실제 적용하기 위한 compactor 설정
+  # 스트림별 타겟 지정 보관 주기 설정 
+  retention_stream:
+    - selector: '{log_type="security"}' # 보안 로그 전용 라벨
+      priority: 1
+      period: 8760h                     # 1년(365일) 보관
+
 compactor:
   working_directory: /loki/compactor
   retention_enabled: true
+  retention_delete_delay: 2h
+  retention_delete_worker_count: 3
   delete_request_store: filesystem
