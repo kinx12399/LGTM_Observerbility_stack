@@ -143,14 +143,17 @@ docker compose logs --tail=20 prometheus
 ### config/prometheus.yml
 - `global.scrape_interval`: Prometheus가 메트릭을 15초 간격으로 수집하도록 설정합니다.
 - `remote_write`: 수집한 메트릭을 `http://mimir:9009/api/v1/push`로 전송합니다.
+- `metadata_config.send: true`: 메트릭 메타데이터를 Mimir에 함께 전송합니다.
 - `scrape_configs`: Prometheus 자체와 `node-exporter`의 메트릭을 스크랩하도록 구성합니다.
 
 ### config/loki-config.yaml
 - `auth_enabled: false`: 인증 없이 로그 수집을 허용합니다.
 - `server.http_listen_port`: Loki HTTP API 포트 `3100`.
+- `common.path_prefix: /loki`: Loki가 `/loki` 경로에서 API 요청을 처리하도록 설정합니다.
 - `common.storage.filesystem`: 로그 청크 및 룰을 로컬 파일 시스템에 저장합니다.
 - `schema_config`: TSDB 스토리지와 24시간 인덱스 주기, `v13` 스키마를 사용합니다.
-- `limits_config.retention_period: 168h`: 로그 보관 기간을 7일로 제한합니다.
+- `limits_config.retention_period: 720h`: 기본 로그 보관 기간을 30일로 설정합니다.
+- `limits_config.retention_stream`: `log_type="security"`에 대해 우선순위 1로 8760h (1년) 보관하도록 개별화된 보존 정책을 제공합니다.
 - `compactor.retention_enabled: true`: 보관 기간을 실제로 적용하는 compactor를 활성화합니다.
 
 ### config/promtail-config.yaml
@@ -158,13 +161,19 @@ docker compose logs --tail=20 prometheus
 - `positions.filename`: 마지막으로 처리한 로그 위치를 저장합니다.
 - `clients.url`: Loki `http://loki:3100/loki/api/v1/push`로 로그 전송.
 - `scrape_configs`: `/var/log/*log` 경로의 시스템 로그를 `job: varlogs` 레이블로 수집합니다.
+- `pipeline_stages`: 로그에서 보안 키워드와 로그 레벨을 추출하고, `log_type`과 `log_level` 라벨을 생성합니다.
+- `match` 단계: `INFO` 레벨이면서 `generic` 로그인 경우 `non_security_info_sampling` 사유로 드롭하여 잡음을 줄입니다.
 
 ### config/tempo-config.yaml
 - `server.http_listen_port: 3200`: Tempo HTTP API 포트.
 - `multitenancy_enabled: false`: 단일 테넌트 모드로 설정하여 org id 관련 인증 문제를 회피합니다.
 - `distributor.receivers.otlp.protocols.grpc.endpoint: 0.0.0.0:4317`: OTLP gRPC 수신 포트.
 - `storage.trace.backend: s3`: 트레이스 데이터를 MinIO S3 호환 스토리지에 저장합니다.
-- `storage.trace.s3`: MinIO 엔드포인트, 인증 정보, 버킷 `tempo-data`를 사용합니다.
+- `storage.trace.s3.endpoint`: MinIO 엔드포인트 `minio:9000`.
+- `storage.trace.s3.access_key`: MinIO 액세스 키 `mimir`.
+- `storage.trace.s3.secret_key`: MinIO 시크릿 키 `supersecret`.
+- `storage.trace.s3.bucket`: 버킷 이름 `tempo-data`.
+- `storage.trace.s3.insecure: true`: TLS 검증 없이 MinIO에 연결합니다.
 - `wal.path`: write-ahead log 저장 위치를 `/var/tempo/wal`로 설정합니다.
 
 ### config/mimir-config.yaml
@@ -172,7 +181,11 @@ docker compose logs --tail=20 prometheus
 - `multitenancy_enabled: false`: 단일 테넌트 환경으로 구성합니다.
 - `server.http_listen_port: 9009`: Mimir HTTP API 포트.
 - `blocks_storage.backend: s3`: 블록 스토리지를 MinIO S3로 설정합니다.
-- `s3.bucket_name: mimir`: Mimir 블록 스토리지 버킷.
+- `blocks_storage.s3.endpoint`: MinIO 엔드포인트 `minio:9000`.
+- `blocks_storage.s3.bucket_name`: Mimir 블록 스토리지 버킷 `mimir`.
+- `blocks_storage.s3.access_key_id`: MinIO 액세스 키 `mimir`.
+- `blocks_storage.s3.secret_access_key`: MinIO 시크릿 키 `supersecret`.
+- `blocks_storage.s3.insecure: true`: TLS 검증 없이 MinIO에 연결합니다.
 - `tsdb.dir`: 로컬 TSDB 저장 경로를 `/data/tsdb`로 지정합니다.
 - `ingester.ring.replication_factor: 1`: 단일 복제 인스턴스 구성.
 - `compactor.data_dir`: 컴팩터 상태 저장 디렉터리를 `/data/compactor`로 설정합니다.
